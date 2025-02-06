@@ -15,7 +15,7 @@ const port = process.env.PORT || 3005;
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 //core
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3001"];
+const allowedOrigins = ["http://localhost:3000", "http://localhost:3001","https://frontend-taskmanager-jgrd.onrender.com"];
 
 app.use(
     cors({
