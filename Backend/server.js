@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const dotenv = require("dotenv");
 const { mongoDBConnecting } = require("./config/db");
@@ -9,18 +10,12 @@ const cors = require("cors");
 dotenv.config();
 
 // App setup
-const app = express();
-const port = process.env.PORT || 3005;
-
+const app = express(); 
+const port = process.env.PORT || 3005; 
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
-
-// CORS Configuration - Hardcoded Allowed Origins
-const allowedOrigins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://frontend-taskmanager-jgrd.onrender.com", // Add your deployed frontend
-];
+//core
+const allowedOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
 app.use(
     cors({
@@ -32,20 +27,19 @@ app.use(
             }
         },
         methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-        credentials: true, // Allow cookies and authentication headers
+        credentials: true, // Include credentials if necessary
     })
 );
 
-// Middleware for routes
+// Middleware
 app.use("/api/user", routerUser);
 app.use("/api/admin", routerProject);
 
 // Connect to MongoDB
-mongoDBConnecting("your_mongodb_connection_string_here").then(() => {
-    console.log("Connected to MongoDB");
+mongoDBConnecting(process.env.MONGO_URL).then(() => {
+    console.log("connected mongodb");
 });
-
-// Example Route
+// Routes (Example Route)
 app.get("/", (req, res) => {
     res.send("Welcome to the server!");
 });
