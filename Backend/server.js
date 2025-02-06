@@ -11,32 +11,41 @@ dotenv.config();
 // App setup
 const app = express();
 const port = process.env.PORT || 3005;
+
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
-// CORS setup
+// CORS Configuration - Hardcoded Allowed Origins
+const allowedOrigins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://frontend-taskmanager-jgrd.onrender.com", // Add your deployed frontend
+];
+
 app.use(
     cors({
-        origin: [
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "https://task-manager-mernstack.onrender.com"
-        ],
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-        credentials: true, // Include credentials if necessary
+        credentials: true, // Allow cookies and authentication headers
     })
 );
 
-// Middleware
+// Middleware for routes
 app.use("/api/user", routerUser);
 app.use("/api/admin", routerProject);
 
 // Connect to MongoDB
-mongoDBConnecting(process.env.MONGO_URL).then(() => {
-    console.log("connected mongodb");
+mongoDBConnecting("your_mongodb_connection_string_here").then(() => {
+    console.log("Connected to MongoDB");
 });
 
-// Routes (Example Route)
+// Example Route
 app.get("/", (req, res) => {
     res.send("Welcome to the server!");
 });
@@ -45,3 +54,4 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
