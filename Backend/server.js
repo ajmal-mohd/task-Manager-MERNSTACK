@@ -1,59 +1,47 @@
-// server.js
 const express = require("express");
 const dotenv = require("dotenv");
 const { mongoDBConnecting } = require("./config/db");
 const routerUser = require("./routes/user");
 const routerProject = require("./routes/project");
 const cors = require("cors");
-const morgan = require("morgan");
 
+// Initialize environment variables
 dotenv.config();
 
+// App setup
 const app = express();
 const port = process.env.PORT || 3005;
-
-app.use(morgan("dev"));
-app.use(express.json());
+app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration (Render-Friendly)
-const allowedOrigin = process.env.ALLOWED_ORIGIN || "https://task-manager-mernstack.onrender.com";
-
+// CORS setup
 app.use(
     cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigin === "*" || (origin && origin.startsWith(allowedOrigin))) {
-                callback(null, true);
-            } else {
-                console.error("CORS Error: Origin not allowed:", origin);
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true, // Only if needed
+        origin: [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://task-manager-mernstack.onrender.com"
+        ],
+        methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+        credentials: true, // Include credentials if necessary
     })
 );
 
-
+// Middleware
 app.use("/api/user", routerUser);
 app.use("/api/admin", routerProject);
 
-mongoDBConnecting(process.env.MONGO_URL)
-    .then(() => console.log("Connected to MongoDB"))
-    .catch((err) => {
-        console.error("MongoDB connection error:", err);
-        process.exit(1);
-    });
+// Connect to MongoDB
+mongoDBConnecting(process.env.MONGO_URL).then(() => {
+    console.log("connected mongodb");
+});
 
+// Routes (Example Route)
 app.get("/", (req, res) => {
-    res.json({ message: "API is running" });
+    res.send("Welcome to the server!");
 });
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: "Something went wrong!" });
-});
-
+// Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
